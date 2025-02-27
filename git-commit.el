@@ -236,15 +236,15 @@ default comments in git commit messages"
    '(("^\\(#\s+On branch \\)\\(.*\\)$"
       (1 'git-commit-comment-face)
       (2 'git-commit-branch-face)))
-   (loop for exp in
-         '(("Not currently on any branch." . git-commit-no-branch-face)
-           ("Changes to be committed:"     . git-commit-comment-heading-face)
-           ("Untracked files:"             . git-commit-comment-heading-face)
-           ("Changed but not updated:"     . git-commit-comment-heading-face)
-           ("Unmerged paths:"              . git-commit-comment-heading-face))
-         collect `(,(concat "^\\(#\s+\\)\\(" (car exp) "\\)$")
-                   (1 'git-commit-comment-face)
-                   (2 ',(cdr exp))))
+	 (mapcar (lambda (exp)
+						 `(,(concat "^\\(#\s+\\)\\(" (car exp) "\\)$")
+               (1 'git-commit-comment-face)
+               (2 ',(cdr exp))))
+					 '(("Not currently on any branch." . git-commit-no-branch-face)
+						 ("Changes to be committed:"     . git-commit-comment-heading-face)
+						 ("Untracked files:"             . git-commit-comment-heading-face)
+						 ("Changed but not updated:"     . git-commit-comment-heading-face)
+						 ("Unmerged paths:"              . git-commit-comment-heading-face)))
    `(("^\\(#\t\\)\\([^:]+\\)\\(:\s+\\)\\(.*\\)$"
       (1 'git-commit-comment-face)
       (2 'git-commit-comment-action-face)
@@ -329,9 +329,8 @@ configuration key KEY."
   "Get the value of the first defined environment variable.
 Walk VARS, call `getenv' on each element and return the first
 non-nil return value of `getenv'."
-  (loop for var in vars
-        do (let ((val (getenv var)))
-             (when val (return val)))))
+	(seq-find #'identity
+						(mapcar #'getenv vars)))
 
 (defun git-commit-committer-name ()
   "Get the git committer name of the current user.
